@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/new-year/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Новогоднее приключение для Киры!</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+      
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      
+      body {
+        font-family: 'Press Start 2P', cursive;
+        background: linear-gradient(135deg, #1a0033 0%, #330066 50%, #0066cc 100%);
+        color: #00ff00;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow-x: hidden;
+      }
+      
+      #app {
+        width: 100%;
+        min-height: 100vh;
+      }
+      
+      /* Анимация мерцания */
+      
+      @keyframes flicker {
+        0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+          text-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+        }
+        20%, 24%, 55% {
+          text-shadow: none;
+        }
+      }
+      
+      .flicker {
+        animation: flicker 2s infinite;
+      }
+    </style>
+    <script type="module" crossorigin src="/new-year/assets/index-DSReFL1T.js"></script>
+    <link rel="stylesheet" crossorigin href="/new-year/assets/index-GNzlv-JG.css">
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>
