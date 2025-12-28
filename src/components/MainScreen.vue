@@ -7,7 +7,7 @@
 
     <div class="dates-grid">
       <button 
-        v-for="dateNum in 4" 
+        v-for="dateNum in 5" 
         :key="dateNum"
         class="date-button"
         :class="{ unlocked: unlockedDates[dateNum], locked: !unlockedDates[dateNum] }"
@@ -26,7 +26,7 @@
     <div class="progress-bar">
       <div class="progress" :style="{ width: progressPercent + '%' }"></div>
     </div>
-    <p class="progress-text">Прогресс: {{ unlockedCount }}/4</p>
+    <p class="progress-text">Прогресс: {{ unlockedCount }}/5</p>
   </div>
 </template>
 
@@ -53,7 +53,7 @@ export default {
     })
 
     const progressPercent = computed(() => {
-      return (unlockedCount.value / 4) * 100
+      return (unlockedCount.value / 5) * 100
     })
 
     return {
@@ -105,11 +105,14 @@ export default {
 }
 
 .dates-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 30px;
   margin-bottom: 50px;
+  justify-content: center;  /* Центрирует все элементы */
+  align-items: flex-start;
 }
+
 
 .date-button {
   padding: 30px 20px;

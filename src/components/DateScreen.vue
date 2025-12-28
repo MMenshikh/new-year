@@ -5,8 +5,8 @@
     <div class="container">
       <h2 class="title">{{ dateData.title }}</h2>
 
-      <!-- ЭТАП 1: Отгадать загадку (для уровней 1-3) -->
-      <div v-if="stage === 'riddle' && dateNumber < 4" class="stage">
+      <!-- ЭТАП 1: Отгадать загадку (для уровней 1-4, НЕ для 5-го) -->
+      <div v-if="stage === 'riddle' && dateNumber < 5" class="stage">
         <div class="riddle-box">
           <p class="riddle-label">📜 Загадка:</p>
           <p class="riddle-text">{{ dateData.riddle }}</p>
@@ -29,11 +29,11 @@
         </div>
       </div>
 
-      <!-- СПЕЦИАЛЬНЫЙ ЭКРАН для 4-го уровня -->
-      <div v-if="dateNumber === 4 && stage === 'riddle'" class="stage">
+      <!-- ЭТАП 1 для 5-го уровня: сразу сборка ссылки (вместо загадки) -->
+      <div v-if="stage === 'riddle' && dateNumber === 5" class="stage">
         <div class="final-puzzle-box">
           <p class="final-puzzle-text">
-            🔐 Ты прошла первые 3 свидания и получила 3 части ссылки!
+            🔐 Ты прошла первые 4 свидания и получила 4 части ссылки!
           </p>
           <p class="final-puzzle-text">
             Теперь совмести все коды которые ты получила и введи полную ссылку:
@@ -44,8 +44,9 @@
           <p class="hint-text">
             💡 Напомню: 
             <br>От 1 свидания: https://
-            <br>От 2 свидания: shorturl.at/
-            <br>От 3 свидания: kNyfG
+            <br>От 2 свидания: short
+            <br>От 3 свидания: url.at/
+            <br>От 4 свидания: kNyfG
           </p>
         </div>
 
@@ -56,36 +57,44 @@
             type="text"
             class="code-input"
             placeholder="https://shorturl.at/..."
-            @keyup.enter="checkAnswer"
+            @keyup.enter="checkFinalLink"
           />
-          <button class="submit-button" @click="checkAnswer">✓ Проверить</button>
+          <button class="submit-button" @click="checkFinalLink">✓ Проверить</button>
         </div>
       </div>
 
-      <!-- ЭТАП 2: Показать адрес -->
-      <div v-if="stage === 'coordinates'" class="stage">
-        <div v-if="dateNumber < 4" class="coordinates-box">
+      <!-- ЭТАП 2: Показать адрес (для уровней 1-4) -->
+      <div v-if="stage === 'coordinates' && dateNumber < 5" class="stage">
+        <div class="coordinates-box">
           <p class="coordinates-label">📍 Место свидания:</p>
           <p class="coordinates-text">{{ dateData.address }}</p>
         </div>
 
-        <div v-else class="final-destination-box">
-          <p class="final-puzzle-text">🎉 Ссылка верна!</p>
-          <p class="coordinates-label">📍 Последнее свидание ждёт тебя здесь:</p>
-          <p class="coordinates-text">Перейди по ссылке :)</p>
-        </div>
-
         <p class="message">Отправляйтесь на это свидание! 🚗💕</p>
         
-        <button class="submit-button" @click="handleCoordinatesButton">
-          {{ dateNumber < 4 ? '✓ Свидание пройдено, вводить код' : '✓ Ура, поехали на свидание!' }}
+        <button class="submit-button" @click="stage = 'code'">
+          ✓ Свидание пройдено, вводить код
         </button>
       </div>
 
+      <!-- ЭТАП 2 для 5-го уровня: показать финальный адрес после правильной ссылки -->
+      <div v-if="stage === 'coordinates' && dateNumber === 5" class="stage">
+        <div class="final-destination-box">
+          <p class="final-puzzle-text">🎉 Ссылка верна!</p>
+          <p class="coordinates-label">📍 Наше последнее свидание ждёт тебя здесь:</p>
+          <p class="coordinates-text">{{ dateData.address }}</p>
+        </div>
 
-      <!-- ЭТАП 3: Ввести код для разблокировки следующего -->
-      <div v-if="stage === 'code'" class="stage">
-        <div v-if="dateNumber < 4" class="code-input-box">
+        <p class="message">Финальное свидание! 💕✨</p>
+        
+        <button class="submit-button" @click="goBack">
+          ✓ Ура, поехали на свидание!
+        </button>
+      </div>
+
+      <!-- ЭТАП 3: Ввести код для разблокировки следующего (уровни 1-4) -->
+      <div v-if="stage === 'code' && dateNumber < 5" class="stage">
+        <div class="code-input-box">
           <label class="code-label">Введи код, который я тебе дал после свидания:</label>
           <input 
             v-model="inputCode"
@@ -120,27 +129,6 @@ export default {
     const stage = ref('riddle') // 'riddle' -> 'coordinates' -> 'code'
     const inputAnswer = ref('')
     const inputCode = ref('')
-    
-    // Генерируем случайные координаты для свидания
-    const coordinates = ref({
-      latitude: 55.7558 + (Math.random() - 0.5) * 0.1,
-      longitude: 37.6173 + (Math.random() - 0.5) * 0.1,
-      address: generateRandomAddress()
-    })
-
-    function generateRandomAddress() {
-      const addresses = [
-        'Кафе "У причала", Москва',
-        'Парк Горького, вход 1',
-        'Большой театр, площадь',
-        'Красная площадь, у памятника',
-        'Арбат, середина улицы',
-        'ВДНХ, у фонтана',
-        'МГУ, главное здание',
-        'Цветной бульвар, середина'
-      ]
-      return addresses[Math.floor(Math.random() * addresses.length)]
-    }
 
     const goBack = () => {
       emit('codeMissingCode')
@@ -148,14 +136,7 @@ export default {
 
     const checkAnswer = () => {
       const userAnswer = inputAnswer.value.trim().toLowerCase()
-      
-      let correctAnswer
-      if (props.dateNumber < 4) {
-        correctAnswer = props.dateData.answer.toLowerCase()
-      } else {
-        // Для 4-го уровня правильный ответ - полная ссылка
-        correctAnswer = 'https://shorturl.at/kNyfG'.toLowerCase()
-      }
+      const correctAnswer = props.dateData.answer.toLowerCase()
       
       if (userAnswer === '') {
         alert('Пожалуйста, введи ответ!')
@@ -166,23 +147,27 @@ export default {
         stage.value = 'coordinates'
         inputAnswer.value = ''
       } else {
-        if (props.dateNumber === 4) {
-          alert('❌ Неверная ссылка! Проверь, правильно ли собрала коды.')
-        } else {
-          alert('❌ Неверно! Попробуй ещё раз.')
-        }
+        alert('❌ Неверно! Попробуй ещё раз.')
         inputAnswer.value = ''
       }
     }
 
-    const handleCoordinatesButton = () => {
-      if (props.dateNumber < 4) {
-        // Для уровней 1-3: переходим к вводу кода
-        stage.value = 'code'
+    const checkFinalLink = () => {
+      const userLink = inputAnswer.value.trim().toLowerCase()
+      const correctLink = 'https://shorturl.at/kNyfG'.toLowerCase()
+
+      if (userLink === '') {
+        alert('Пожалуйста, введи ссылку!')
+        return
+      }
+
+      if (userLink === correctLink) {
+        // Ссылка верна, переходим к показу адреса
+        stage.value = 'coordinates'
+        inputAnswer.value = ''
       } else {
-        // Для 4-го уровня: сразу отправляем пустой код и закрываем
-        emit('codeSubmitted', '')
-        goBack()
+        alert('❌ Неверная ссылка! Проверь, правильно ли собрала коды.')
+        inputAnswer.value = ''
       }
     }
 
@@ -199,10 +184,9 @@ export default {
       stage,
       inputAnswer,
       inputCode,
-      coordinates,
       checkAnswer,
+      checkFinalLink,
       submitCode,
-      handleCoordinatesButton,
       goBack
     }
   }
@@ -293,37 +277,6 @@ export default {
   box-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
 }
 
-/* Специальный экран для 4-го уровня */
-.final-puzzle-box {
-  background: rgba(100, 50, 100, 0.7);
-  padding: 25px;
-  border: 3px solid #ff00ff;
-  box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
-  animation: pulse-magic 1s infinite;
-}
-
-@keyframes pulse-magic {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.01);
-  }
-}
-
-.final-puzzle-text {
-  color: #ffff00;
-  font-size: 13px;
-  line-height: 1.6;
-  margin: 0;
-  text-shadow: 0 0 10px #ffff00;
-  font-family: 'Press Start 2P', cursive;
-}
-
-.final-puzzle-text + .final-puzzle-text {
-  margin-top: 15px;
-}
-
 .riddle-label {
   color: #ffff00;
   font-size: 12px;
@@ -364,7 +317,38 @@ export default {
   text-shadow: 0 0 5px #00ff00;
 }
 
-/* ЭТАП 2: Координаты */
+/* Специальный экран для 5-го уровня (сборка ссылки) */
+.final-puzzle-box {
+  background: rgba(100, 50, 100, 0.7);
+  padding: 25px;
+  border: 3px solid #ff00ff;
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.5);
+  animation: pulse-magic 1s infinite;
+}
+
+@keyframes pulse-magic {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.01);
+  }
+}
+
+.final-puzzle-text {
+  color: #ffff00;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+  text-shadow: 0 0 10px #ffff00;
+  font-family: 'Press Start 2P', cursive;
+}
+
+.final-puzzle-text + .final-puzzle-text {
+  margin-top: 15px;
+}
+
+/* ЭТАП 2: Адрес */
 .coordinates-box {
   background: rgba(50, 100, 50, 0.7);
   padding: 25px;
@@ -408,13 +392,6 @@ export default {
   font-family: 'Press Start 2P', cursive;
   white-space: pre-wrap;
   line-height: 1.8;
-}
-
-
-.coordinates-hint {
-  color: #00ffff;
-  font-size: 11px;
-  text-shadow: 0 0 5px #00ffff;
 }
 
 .message {

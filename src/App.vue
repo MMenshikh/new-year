@@ -43,20 +43,27 @@ export default {
         riddle: 'Среди самых разных фруктов, Новогодний есть один - кислый, сладкий очень спелый, это вкусный - ',
         answer: 'мандарин', 
         address: 'Гончарная мастерская\nСоветская ул., 94',
-        correctCode: 'shorturl.at/',
+        correctCode: 'short',
       },
       3: {
         title: 'Свидание 3',
+        riddle: 'Днём и тёмными ночами, она мёрзнет под снегами, но погреться в Новый год, её каждый в дом зовёт',
+        answer: 'ёлка',
+        address: 'ТРК «Семья», Play Day',
+        correctCode: 'url.at/',           // Часть 3 ссылки
+      },
+      4: {
+        title: 'Свидание 4',
         riddle: 'Красный нос и борода, ходит он туда-сюда, всем подарки он принёс, кто же это?',
         answer: 'дед мороз',
         address: 'Трамвайное кафе\nост. Разгуляй (на кольце)',
         correctCode: 'kNyfG',
       },
-      4: {
-        title: 'Свидание 4 - ФИНАЛ!',
+      5: {
+        title: 'Свидание 5 - ФИНАЛ!',
         riddle: 'Днём и тёмными ночами, она мёрзнет под снегами, но погреться в Новый год, её каждый в дом зовёт',
         answer: 'ёлка',
-        address: 'ул. Фридриха Энгельса, 18',
+        address: '(Перейди по ссылке!)',
         correctCode: '',
       }
     })
@@ -66,7 +73,8 @@ export default {
       1: true,
       2: false,
       3: false,
-      4: false
+      4: false,
+      5: false
     })
 
     const loadProgress = () => {
@@ -94,7 +102,7 @@ export default {
     const handleCodeSubmitted = (code) => {
       const correctCode = dates.value[currentDateNumber.value].correctCode
       
-      if (currentDateNumber.value < 4) {
+      if (currentDateNumber.value < 5) {
         if (code === correctCode) {
           // Код верный - разблокируем следующее свидание
           unlockedDates.value[currentDateNumber.value + 1] = true
